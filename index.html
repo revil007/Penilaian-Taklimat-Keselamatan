@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portal Penilaian Taklimat HSE — SCI</title>
+<style>
+:root{--ink:#152b2b;--muted:#647575;--teal:#087e75;--mint:#e8f5f1;--gold:#f4bf54;--paper:#f5f8f6;--line:#dce7e2;--red:#b83b36;--green:#20734f}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 "Segoe UI",Arial,sans-serif}
+.wrap{max-width:960px;margin:34px auto;padding:0 18px}
+.hero{background:#123c3a;color:#fff;border-radius:22px;padding:28px 34px;position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;width:220px;height:220px;border:35px solid #ffffff14;border-radius:50%;right:-40px;top:-90px}
+.tag{font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:#a7e2d5;font-weight:700}
+.hero h1{font-size:clamp(26px,5vw,40px);line-height:1.1;margin:10px 0}.hero p{margin:8px 0 0;color:#d5e9e4;max-width:640px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px;margin-top:18px;box-shadow:0 8px 28px #1c45420b}
+.panel h2.sec{margin:0 0 14px;font-size:20px}
+.row{display:flex;gap:14px;align-items:end;flex-wrap:wrap}.field{flex:1;min-width:200px}
+.field label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
+.field input,.field select{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;color:inherit}
+.req{color:var(--red)}.opt{font-weight:400;color:#71817d}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.card{display:flex;gap:14px;align-items:flex-start;text-align:left;border:1.5px solid var(--line);border-radius:16px;padding:18px;background:#fff;cursor:pointer;font:inherit;color:inherit;transition:.15s}
+.card:hover:not(:disabled){border-color:var(--teal);background:#f8fcfa;transform:translateY(-1px)}
+.card:disabled{cursor:not-allowed;opacity:.55}
+.card .ic{font-size:30px;line-height:1;width:52px;height:52px;border-radius:14px;background:var(--mint);display:grid;place-items:center;flex:none}
+.card h3{margin:0 0 4px;font-size:17px;line-height:1.25}.card p{margin:0 0 8px;font-size:13px;color:var(--muted)}
+.meta{font-size:12px;font-weight:700;color:var(--teal)}.card:disabled .meta{color:var(--muted)}
+.progressline{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;font-weight:700;margin-bottom:10px;gap:10px}
+.track{height:8px;background:#e8efec;border-radius:20px;overflow:hidden;margin-bottom:22px}.bar{height:100%;width:0;background:var(--teal);transition:width .25s}
+.pill{background:#fff0ca;color:#644a0a;border-radius:99px;padding:4px 10px;font-size:12px;font-weight:800;display:inline-block}
+.q h2{font-size:22px;line-height:1.3;margin:10px 0 18px}
+.choices{display:grid;gap:10px}
+.choice{display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--line);border-radius:12px;padding:13px 15px;cursor:pointer;transition:.15s}
+.choice:hover{border-color:#7ebbb0;background:#f8fcfa}.choice.selected{border-color:var(--teal);background:var(--mint)}
+.choice.right{border-color:var(--green);background:#eaf6ef}.choice.wrong{border-color:var(--red);background:#fff1ed}
+.choice input{accent-color:var(--teal);margin-top:4px}.choice span{flex:1}
+.feedback{padding:12px 14px;border-radius:10px;margin-top:15px;font-size:14px}.feedback.good{background:#eaf6ef;color:#205f43}.feedback.bad{background:#fff1ed;color:#87332e}
+.buttons{display:flex;gap:10px;justify-content:space-between;margin-top:20px;flex-wrap:wrap}
+.btn{border:0;border-radius:10px;padding:12px 18px;font:700 15px/1.2 inherit;font-family:inherit;cursor:pointer}
+.primary{background:var(--teal);color:#fff}.primary:hover{background:#06685f}.secondary{background:#edf2ef;color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}.btn.sm{padding:9px 13px;font-size:14px}
+.hidden{display:none!important}
+.result{text-align:center;padding:32px}.score{font-size:64px;line-height:1;font-weight:800;color:var(--teal);margin:12px}
+.result h2{font-size:28px;margin:8px}.result p{color:var(--muted)}
+.badge{display:inline-block;border-radius:99px;padding:5px 14px;font-weight:800;font-size:14px;letter-spacing:.05em}
+.badge.ok{background:#eaf6ef;color:var(--green)}.badge.no{background:#fff1ed;color:var(--red)}
+.review{text-align:left;margin:24px auto 0;max-width:700px}.review details{border-top:1px solid var(--line);padding:12px 0}
+.review summary{cursor:pointer;font-weight:700}.review .ans{font-size:14px;color:var(--muted);padding:8px 0 0}
+.msg{padding:14px 16px;border-radius:12px;background:#fff8e6;border:1px solid #f4dfa6;color:#644a0a;font-size:14px}
+.msg.err{background:#fff1ed;border-color:#f3c9c2;color:#87332e}
+.err{color:var(--red);font-size:14px;font-weight:600;margin-top:10px}
+.note{font-size:12px;color:var(--muted);text-align:center;margin:18px 0}
+.linkbtn{background:none;border:0;color:var(--muted);font:inherit;font-size:12px;cursor:pointer;text-decoration:underline;padding:4px}
+.spin{display:inline-block;width:18px;height:18px;border:3px solid #cfe3dd;border-top-color:var(--teal);border-radius:50%;animation:sp 0.8s linear infinite;vertical-align:-4px;margin-right:8px}
+@keyframes sp{to{transform:rotate(360deg)}}
+/* Laporan */
+.rep-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.rep-head h2{margin:0;font-size:22px}
+.filters{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin:16px 0}
+.filters .field{min-width:0}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:6px 0 16px}
+.stat{background:var(--paper);border-radius:12px;padding:12px 14px}.stat b{display:block;font-size:24px;color:var(--teal);line-height:1.1}.stat span{font-size:12px;color:var(--muted);font-weight:700}
+.tblwrap{overflow-x:auto}
+table.rep{width:100%;border-collapse:collapse;font-size:14px}
+table.rep th,table.rep td{border-bottom:1px solid var(--line);padding:8px 8px;text-align:left;vertical-align:top}
+table.rep th{background:#f0f5f3;font-size:12px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+table.rep td.n{text-align:center;white-space:nowrap}table.rep .st-ok{color:var(--green);font-weight:800}table.rep .st-no{color:var(--red);font-weight:800}
+.print-only{display:none}
+@media(max-width:640px){.wrap{margin:16px auto}.hero,.panel{padding:20px}.q h2{font-size:19px}.stats{grid-template-columns:repeat(2,1fr)}}
+@page{size:A4;margin:12mm}
+@media print{
+ body{background:#fff;font-size:12px}.wrap{margin:0;max-width:none;padding:0}
+ .hero,.note,.buttons,.no-print,.linkbtn{display:none!important}
+ .panel{border:0;box-shadow:none;padding:0;margin:0}
+ .print-only{display:block}
+ body.printing-report #home,body.printing-report #quiz,body.printing-report #result,body.printing-report #login,body.printing-report #submitting{display:none!important}
+ .ph{border-bottom:2px solid #123c3a;padding-bottom:6px;margin-bottom:8px}.ph h1{font-size:16px;margin:0}.ph div{font-size:11px;color:#333}
+ .stats{grid-template-columns:repeat(4,1fr);gap:6px;margin:0 0 8px}.stat{padding:5px 8px;border:1px solid #ccc;background:#fff}.stat b{font-size:15px;color:#000}
+ table.rep{font-size:10.5px}table.rep th,table.rep td{padding:3px 5px;border-bottom:1px solid #bbb}table.rep th{background:#e9e9e9!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+ table.rep tr{break-inside:avoid}.tblwrap{overflow:visible}
+ .sign{display:flex;justify-content:space-between;gap:30px;margin-top:28px;font-size:11px;break-inside:avoid}.sign div{flex:1;border-top:1px solid #000;padding-top:4px}
+ .result{padding:0}.review details{padding:4px 0}.review .ans{display:block}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+<header class="hero"><div class="tag">SCI · Unit HSE</div><h1>Portal Penilaian<br>Taklimat HSE</h1><p>Pilih topik taklimat yang anda hadiri dan jawab penilaian. Keputusan anda akan direkodkan.</p></header>
+
+<!-- ============ MENU UTAMA ============ -->
+<div id="home">
+ <section class="panel">
+  <h2 class="sec">1. Maklumat peserta</h2>
+  <div class="row">
+   <div class="field"><label for="nama">Nama penuh <span class="req">*</span></label><input id="nama" autocomplete="name" placeholder="Masukkan nama penuh"></div>
+   <div class="field"><label for="noPekerja">No. pekerja <span class="opt">(pilihan)</span></label><input id="noPekerja" placeholder="cth. SCI0123"></div>
+   <div class="field"><label for="jabatan">Jabatan / unit <span class="req">*</span></label><input id="jabatan" list="jabList" placeholder="Masukkan jabatan"></div>
+  </div>
+  <datalist id="jabList"><option>Glue Plant</option><option>Formalin</option><option>Q.C</option><option>R&amp;D</option><option>Maintenance</option><option>Store</option><option>HSE</option><option>Pentadbiran</option></datalist>
+  <div class="err hidden" id="idErr">Sila isi nama dan jabatan sebelum memilih topik.</div>
+ </section>
+ <section class="panel">
+  <h2 class="sec">2. Pilih topik penilaian</h2>
+  <div id="topicsBox"><p><span class="spin"></span>Memuatkan topik…</p></div>
+ </section>
+</div>
+
+<!-- ============ KUIZ ============ -->
+<section class="panel hidden" id="quiz">
+ <div class="progressline"><span id="qTopicName"></span><span id="counter"></span></div>
+ <div class="track"><div class="bar" id="bar"></div></div>
+ <div class="q"><span class="pill" id="topic"></span><h2 id="question"></h2><div class="choices" id="choices"></div><div class="feedback hidden" id="feedback" aria-live="polite"></div><div class="err hidden" id="qErr"></div></div>
+ <div class="buttons"><button class="btn secondary" id="back">← Sebelumnya</button><button class="btn primary" id="next" disabled>Semak jawapan</button></div>
+ <div style="text-align:center;margin-top:14px"><button class="linkbtn" id="quitQuiz">Batal dan kembali ke menu</button></div>
+</section>
+
+<section class="panel hidden" id="submitting" style="text-align:center"><div id="submitMsg"><p><span class="spin"></span>Menghantar jawapan anda…</p></div></section>
+
+<!-- ============ KEPUTUSAN PESERTA ============ -->
+<section class="panel result hidden" id="result" aria-live="polite"></section>
+
+<!-- ============ LOG MASUK ADMIN ============ -->
+<section class="panel hidden" id="login">
+ <h2 class="sec" style="margin-bottom:4px">Laporan keputusan</h2><p style="margin:0 0 14px;color:var(--muted);font-size:14px">Untuk kegunaan Unit HSE sahaja.</p>
+ <form id="loginForm"><div class="field" style="max-width:360px"><label for="pw">Kata laluan admin</label><input type="password" id="pw" autocomplete="current-password"></div>
+ <div class="err hidden" id="loginErr"></div>
+ <div class="buttons" style="justify-content:flex-start"><button type="button" class="btn secondary" id="loginCancel">Batal</button><button type="submit" class="btn primary" id="loginBtn">Masuk</button></div></form>
+</section>
+
+<!-- ============ LAPORAN ADMIN ============ -->
+<section class="panel hidden" id="report">
+ <div class="rep-head no-print"><h2>Laporan keputusan</h2>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary sm" id="repPrint">🖨 Cetak</button><button class="btn secondary sm" id="repReload">↻ Muat semula</button><button class="btn secondary sm" id="repPwBtn">Tukar kata laluan</button><button class="btn secondary sm" id="repExit">Keluar</button></div>
+ </div>
+ <form class="hidden no-print" id="pwForm" style="margin-top:16px;padding:16px;border:1.5px solid var(--teal);border-radius:14px">
+  <div class="row"><div class="field"><label for="pw1">Kata laluan baharu</label><input type="password" id="pw1" autocomplete="new-password"></div><div class="field"><label for="pw2">Ulang kata laluan baharu</label><input type="password" id="pw2" autocomplete="new-password"></div></div>
+  <div class="err hidden" id="pwErr"></div>
+  <div class="buttons" style="justify-content:flex-end"><button type="button" class="btn secondary sm" id="pwCancel">Batal</button><button type="submit" class="btn primary sm" id="pwSave">Simpan kata laluan</button></div>
+ </form>
+ <div class="filters no-print">
+  <div class="field"><label for="fTopic">Topik</label><select id="fTopic"></select></div>
+  <div class="field"><label for="fFrom">Dari tarikh</label><input type="date" id="fFrom"></div>
+  <div class="field"><label for="fTo">Hingga tarikh</label><input type="date" id="fTo"></div>
+  <div class="field"><label for="fJab">Jabatan</label><select id="fJab"></select></div>
+  <div class="field"><label for="fMode">Percubaan</label><select id="fMode"><option value="best">Skor terbaik setiap pekerja</option><option value="latest">Percubaan terakhir setiap pekerja</option><option value="all">Semua percubaan</option></select></div>
+  <div class="field"><label for="fSort">Susun ikut</label><select id="fSort"><option value="nama">Nama (A–Z)</option><option value="jab">Jabatan</option><option value="tarikh">Tarikh (terkini dahulu)</option><option value="skor">Peratus (tertinggi dahulu)</option></select></div>
+  <div class="field" style="grid-column:1/-1"><label for="fSearch">Cari nama / no. pekerja</label><input id="fSearch" placeholder="Taip untuk cari…"></div>
+ </div>
+ <div class="print-only ph"><h1>Laporan Keputusan Penilaian Taklimat HSE — Sepangar Chemical Industry Sdn Bhd</h1><div id="phInfo"></div></div>
+ <div class="stats" id="stats"></div>
+ <div class="tblwrap"><table class="rep"><thead><tr><th>Bil</th><th>Nama</th><th>No. pekerja</th><th>Jabatan</th><th>Topik</th><th>Tarikh</th><th>Skor</th><th>%</th><th>Status</th></tr></thead><tbody id="repBody"></tbody></table></div>
+ <p id="repEmpty" class="hidden" style="color:var(--muted);text-align:center;padding:20px">Tiada rekod untuk penapis ini.</p>
+ <div class="print-only sign"><div>Disediakan oleh (Pegawai HSE)<br><br>Nama:<br>Tarikh:</div><div>Disemak oleh<br><br>Nama:<br>Tarikh:</div></div>
+</section>
+
+<p class="note">Bahan latihan dalaman SCI. Sentiasa ikut prosedur tempat kerja dan arahan yang berkaitan.<br><button class="linkbtn" id="adminOpen">🔒 Laporan keputusan (admin)</button></p>
+</main>
+
+<script>
+/* ====== TETAPAN: tampal URL Web App Apps Script di sini ====== */
+const API_URL = 'https://script.google.com/macros/s/AKfycbwy8L9QGQTkLmBjKAZSBdGLzVwUT1m_0er6gaQ7N_X0YGNT-TrHpwWMCJXwq4sQJFUs_g/exec';
+/* ============================================================ */
+
+const $=id=>document.getElementById(id);
+const VIEWS=['home','quiz','submitting','result','login','report'];
+function show(v){VIEWS.forEach(x=>$(x).classList.toggle('hidden',x!==v));window.scrollTo(0,0)}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const L='ABCDE';
+
+async function api(action,params={},post=false){
+ if(!API_URL)throw new Error('Portal belum disambungkan ke Google Sheets. Tampal URL Web App dalam API_URL.');
+ let res;
+ try{
+  res=post?await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({action},params))})
+          :await fetch(API_URL+'?'+new URLSearchParams(Object.assign({action},params)));
+ }catch(e){throw new Error('Tiada sambungan internet atau pelayan tidak dapat dihubungi. Sila cuba lagi.')}
+ let data;try{data=await res.json()}catch(e){throw new Error('Respons pelayan tidak sah. Semak tetapan Web App.')}
+ if(!data.ok)throw new Error(data.error||'Ralat tidak diketahui.');
+ return data;
+}
+
+/* ====== MENU TOPIK ====== */
+let topics=[];
+async function loadTopics(){
+ const box=$('topicsBox');box.innerHTML='<p><span class="spin"></span>Memuatkan topik…</p>';
+ try{
+  topics=(await api('topics')).topics;
+  if(!topics.length){box.innerHTML='<div class="msg">Belum ada topik aktif.</div>';return}
+  box.innerHTML='<div class="cards">'+topics.map((t,i)=>`<button class="card" data-i="${i}" ${t.count?'':'disabled'}><span class="ic">${esc(t.icon||'📋')}</span><span><h3>${esc(t.name)}</h3>${t.desc?`<p>${esc(t.desc)}</p>`:''}<span class="meta">${t.count?`${t.count} soalan · Lulus ${t.pass}%`:'Soalan belum tersedia'}</span></span></button>`).join('')+'</div>';
+  box.querySelectorAll('.card').forEach(c=>c.onclick=()=>pickTopic(topics[c.dataset.i]));
+ }catch(e){box.innerHTML=`<div class="msg err">${esc(e.message)}</div><div class="buttons" style="justify-content:flex-start"><button class="btn secondary sm" onclick="loadTopics()">Cuba lagi</button></div>`}
+}
+function ident(){return{nama:$('nama').value.trim().replace(/\s+/g,' '),noPekerja:$('noPekerja').value.trim(),jabatan:$('jabatan').value.trim().replace(/\s+/g,' ')}}
+['nama','jabatan'].forEach(id=>$(id).addEventListener('input',()=>$('idErr').classList.add('hidden')));
+
+/* ====== KUIZ ====== */
+let cur=null,qs=[],idx=0,answers=[],checks=[],busy=false;
+async function pickTopic(t){
+ const id=ident();
+ if(!id.nama||!id.jabatan){$('idErr').classList.remove('hidden');$(id.nama?'jabatan':'nama').focus();window.scrollTo(0,0);return}
+ cur=t;show('submitting');$('submitMsg').innerHTML='<p><span class="spin"></span>Memuatkan soalan…</p>';
+ try{
+  const d=await api('questions',{topic:t.code});
+  if(!d.questions.length)throw new Error('Tiada soalan untuk topik ini.');
+  cur=d.topic;qs=shuffle(d.questions);idx=0;answers=Array(qs.length).fill(null);checks=Array(qs.length).fill(null);
+  show('quiz');render();
+ }catch(e){$('submitMsg').innerHTML=`<div class="msg err">${esc(e.message)}</div><div class="buttons" style="justify-content:center"><button class="btn secondary" onclick="show('home')">Kembali ke menu</button></div>`}
+}
+function render(){
+ const it=qs[idx],sel=answers[idx],ck=checks[idx];
+ $('qTopicName').textContent=cur.name;$('counter').textContent=`Soalan ${idx+1} daripada ${qs.length}`;
+ $('bar').style.width=`${idx/qs.length*100}%`;$('topic').textContent=it.t||cur.name;$('topic').classList.toggle('hidden',!it.t);$('question').textContent=it.q;
+ $('choices').innerHTML='';
+ it.o.forEach((v,k)=>{const lb=document.createElement('label');let cls='choice';if(ck){if(k===ck.correct)cls+=' right';else if(k===sel)cls+=' wrong'}else if(sel===k)cls+=' selected';lb.className=cls;
+  lb.innerHTML=`<input type="radio" name="ans" ${sel===k?'checked':''} ${ck||busy?'disabled':''}><span>${L[k]}. ${esc(v)}</span>`;
+  lb.onclick=ev=>{ev.preventDefault();if(ck||busy)return;answers[idx]=k;$('qErr').classList.add('hidden');render()};$('choices').append(lb)});
+ const fb=$('feedback');fb.className='feedback hidden';
+ if(ck){fb.className='feedback '+(ck.isCorrect?'good':'bad');fb.innerHTML=`<strong>${ck.isCorrect?'Betul!':'Belum tepat.'}</strong> ${esc(ck.e)}`}
+ $('back').disabled=idx===0||busy;
+ $('next').disabled=busy||(sel===null&&!ck);
+ $('next').innerHTML=busy?'<span class="spin" style="border-color:#ffffff55;border-top-color:#fff"></span>Menyemak…':ck?(idx===qs.length-1?'Hantar &amp; lihat keputusan':'Seterusnya →'):'Semak jawapan';
+}
+async function next(){
+ if(busy)return;
+ if(!checks[idx]){
+  busy=true;render();
+  try{const d=await api('check',{topic:cur.code,id:qs[idx].id,choice:answers[idx]});checks[idx]={correct:d.correct,isCorrect:d.isCorrect,e:d.e}}
+  catch(e){$('qErr').textContent=e.message;$('qErr').classList.remove('hidden')}
+  busy=false;render();return}
+ if(idx<qs.length-1){idx++;render()}else submit();
+}
+$('next').onclick=next;$('back').onclick=()=>{if(idx>0&&!busy){idx--;render()}};
+$('quitQuiz').onclick=()=>{if(confirm('Batal penilaian ini? Jawapan anda tidak akan direkodkan.'))show('home')};
+
+async function submit(){
+ show('submitting');$('submitMsg').innerHTML='<p><span class="spin"></span>Menghantar jawapan anda…</p>';
+ const id=ident(),ans={};qs.forEach((q,i)=>ans[q.id]=answers[i]);
+ try{const d=await api('submit',Object.assign({topic:cur.code,answers:ans},id),true);showResult(d,id)}
+ catch(e){$('submitMsg').innerHTML=`<div class="msg err">Jawapan belum dihantar: ${esc(e.message)}</div><div class="buttons" style="justify-content:center"><button class="btn primary" onclick="submit()">Cuba hantar semula</button></div>`}
+}
+function showResult(d,id){
+ show('result');
+ const byId={};d.questions.forEach(q=>byId[q.id]=q);
+ const now=new Date().toLocaleString('ms-MY',{dateStyle:'medium',timeStyle:'short'});
+ $('result').innerHTML=`<div class="tag" style="color:#087e75">Keputusan penilaian · ${esc(cur.name)}</div>
+ <p style="margin:10px 0 0"><strong>${esc(id.nama)}</strong>${id.noPekerja?' · '+esc(id.noPekerja):''} · ${esc(id.jabatan)}<br><span style="font-size:13px">${esc(now)}</span></p>
+ <div class="score">${d.score}<span style="font-size:25px;color:#647575"> / ${d.total}</span></div>
+ <span class="badge ${d.lulus?'ok':'no'}">${d.lulus?'LULUS':'GAGAL'}</span>
+ <p>Skor: ${d.pct}% (markah lulus ${d.pass}%). Keputusan anda telah direkodkan.</p>
+ <div class="review">${qs.map(x=>d.review.find(r=>r.id===x.id)).filter(Boolean).map((r,k)=>{const q=byId[r.id];return `<details><summary>${r.isCorrect?'✓':'↻'} Soalan ${k+1}${q.t?': '+esc(q.t):''} — ${r.isCorrect?'Betul':'Semak semula'}</summary><div class="ans">${esc(q.q)}<br><strong>Jawapan anda:</strong> ${r.chosen===null?'—':esc(L[r.chosen]+'. '+q.o[r.chosen])}<br><strong>Jawapan betul:</strong> ${esc(L[r.correct]+'. '+q.o[r.correct])}<br>${esc(r.e)}</div></details>`}).join('')}</div>
+ <div class="buttons" style="justify-content:center"><button class="btn secondary" onclick="window.print()">Cetak keputusan</button><button class="btn secondary" id="retry">Cuba lagi</button><button class="btn primary" id="done">Selesai</button></div>`;
+ $('retry').onclick=()=>pickTopic(cur);
+ $('done').onclick=()=>{['nama','noPekerja','jabatan'].forEach(x=>$(x).value='');show('home');loadTopics()};
+}
+
+/* ====== ADMIN / LAPORAN ====== */
+let adminPw='',allRows=[],repTopics=[];
+$('adminOpen').onclick=()=>{show('login');$('pw').value='';$('loginErr').classList.add('hidden');$('pw').focus()};
+$('loginCancel').onclick=()=>show('home');
+$('loginForm').onsubmit=async ev=>{ev.preventDefault();const b=$('loginBtn');b.disabled=true;b.textContent='Menyemak…';
+ try{await loadReport($('pw').value);adminPw=$('pw').value;$('pw').value='';show('report');document.body.classList.add('printing-report')}
+ catch(e){$('loginErr').textContent=e.message;$('loginErr').classList.remove('hidden')}
+ b.disabled=false;b.textContent='Masuk'};
+async function loadReport(pw){
+ const d=await api('results',{password:pw},true);allRows=d.results;repTopics=d.topics;
+ const keepT=$('fTopic').value,keepJ=$('fJab').value;
+ $('fTopic').innerHTML='<option value="">Semua topik</option>'+repTopics.map(t=>`<option value="${esc(t.code)}">${esc(t.name)}</option>`).join('');
+ const jabs=[...new Set(allRows.map(r=>r.jabatan).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+ $('fJab').innerHTML='<option value="">Semua jabatan</option>'+jabs.map(j=>`<option>${esc(j)}</option>`).join('');
+ $('fTopic').value=keepT;$('fJab').value=keepJ;
+ if($('fTopic').selectedIndex<0)$('fTopic').value='';if($('fJab').selectedIndex<0)$('fJab').value='';
+ renderReport();
+}
+const norm=s=>String(s||'').toLowerCase().replace(/\s+/g,' ').trim();
+function fmtDate(ts){const m=/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(ts);return m?`${m[3]}/${m[2]}/${m[1]} ${m[4]}:${m[5]}`:ts}
+function fmtD(d){if(!d)return'';const[y,m,dd]=d.split('-');return`${dd}/${m}/${y}`}
+function filtered(){
+ const t=$('fTopic').value,f=$('fFrom').value,to=$('fTo').value,j=$('fJab').value,mode=$('fMode').value,s=norm($('fSearch').value);
+ let rows=allRows.filter(r=>(!t||r.kod===t)&&(!f||r.ts.slice(0,10)>=f)&&(!to||r.ts.slice(0,10)<=to)&&(!j||r.jabatan===j)&&(!s||norm(r.nama).includes(s)||norm(r.noPekerja).includes(s)));
+ if(mode!=='all'){const g=new Map();rows.forEach(r=>{const k=norm(r.noPekerja)||norm(r.nama)+'|'+norm(r.jabatan);const key=k+'|'+r.kod;const p=g.get(key);
+  if(!p||(mode==='latest'?r.ts>p.ts:(r.pct>p.pct||(r.pct===p.pct&&r.ts>p.ts))))g.set(key,r)});rows=[...g.values()]}
+ const srt=$('fSort').value;
+ rows.sort((a,b)=>srt==='tarikh'?b.ts.localeCompare(a.ts):srt==='skor'?b.pct-a.pct||a.nama.localeCompare(b.nama):srt==='jab'?a.jabatan.localeCompare(b.jabatan)||a.nama.localeCompare(b.nama):a.nama.localeCompare(b.nama)||a.kod.localeCompare(b.kod));
+ return rows;
+}
+function renderReport(){
+ const rows=filtered(),n=rows.length,lulus=rows.filter(r=>r.status==='LULUS').length,avg=n?Math.round(rows.reduce((s,r)=>s+r.pct,0)/n):0;
+ $('stats').innerHTML=`<div class="stat"><b>${n}</b><span>Rekod</span></div><div class="stat"><b>${lulus}</b><span>Lulus</span></div><div class="stat"><b>${n-lulus}</b><span>Gagal</span></div><div class="stat"><b>${avg}%</b><span>Purata skor</span></div>`;
+ $('repBody').innerHTML=rows.map((r,i)=>`<tr><td class="n">${i+1}</td><td>${esc(r.nama)}</td><td>${esc(r.noPekerja)}</td><td>${esc(r.jabatan)}</td><td>${esc(r.topik)}</td><td style="white-space:nowrap">${esc(fmtDate(r.ts))}</td><td class="n">${r.skor}/${r.jumlah}</td><td class="n">${r.pct}%</td><td class="${r.status==='LULUS'?'st-ok':'st-no'}">${esc(r.status)}</td></tr>`).join('');
+ $('repEmpty').classList.toggle('hidden',n>0);
+ const tSel=$('fTopic'),tName=tSel.value?tSel.options[tSel.selectedIndex].text:'Semua topik';
+ const per=$('fFrom').value||$('fTo').value?`${fmtD($('fFrom').value)||'…'} hingga ${fmtD($('fTo').value)||'…'}`:'Semua tarikh';
+ const mode={best:'Skor terbaik setiap pekerja',latest:'Percubaan terakhir setiap pekerja',all:'Semua percubaan'}[$('fMode').value];
+ $('phInfo').innerHTML=`Topik: <b>${esc(tName)}</b> · Tempoh: ${esc(per)}${$('fJab').value?' · Jabatan: '+esc($('fJab').value):''} · ${esc(mode)} · Dicetak: ${esc(new Date().toLocaleString('ms-MY',{dateStyle:'medium',timeStyle:'short'}))}`;
+}
+['fTopic','fFrom','fTo','fJab','fMode','fSort'].forEach(id=>$(id).onchange=renderReport);$('fSearch').oninput=renderReport;
+$('repPrint').onclick=()=>{renderReport();window.print()};
+$('repReload').onclick=async()=>{const b=$('repReload');b.disabled=true;try{await loadReport(adminPw)}catch(e){alert(e.message)}b.disabled=false};
+$('repExit').onclick=()=>{adminPw='';allRows=[];$('repBody').innerHTML='';document.body.classList.remove('printing-report');$('pwForm').classList.add('hidden');show('home')};
+$('repPwBtn').onclick=()=>{$('pwForm').classList.toggle('hidden');$('pw1').value=$('pw2').value='';$('pwErr').classList.add('hidden')};
+$('pwCancel').onclick=()=>$('pwForm').classList.add('hidden');
+$('pwForm').onsubmit=async ev=>{ev.preventDefault();const p1=$('pw1').value,p2=$('pw2').value,err=m=>{$('pwErr').textContent=m;$('pwErr').classList.remove('hidden')};
+ if(p1.length<6)return err('Kata laluan mesti sekurang-kurangnya 6 aksara.');if(p1!==p2)return err('Kedua-dua kata laluan tidak sama.');
+ $('pwSave').disabled=true;try{await api('setpass',{password:adminPw,newPassword:p1},true);adminPw=p1;$('pwForm').classList.add('hidden');alert('Kata laluan admin telah ditukar.')}catch(e){err(e.message)}$('pwSave').disabled=false};
+window.addEventListener('beforeprint',()=>{if(!$('report').classList.contains('hidden'))renderReport()});
+
+loadTopics();
+</script>
+</body>
+</html>
