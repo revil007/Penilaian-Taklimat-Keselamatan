@@ -21,7 +21,7 @@
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
 .card{display:flex;gap:14px;align-items:flex-start;text-align:left;border:1.5px solid var(--line);border-radius:16px;padding:18px;background:#fff;cursor:pointer;font:inherit;color:inherit;transition:.15s}
 .card:hover:not(:disabled){border-color:var(--teal);background:#f8fcfa;transform:translateY(-1px)}
-.card:disabled{cursor:not-allowed;opacity:.55}
+.card:disabled{cursor:not-allowed;opacity:.55}.card.closed{background:#f3f5f4;opacity:.6}.card.closed .ic{filter:grayscale(1);background:#e6eaea}.card.closed .meta{color:#7a6a3a}
 .card .ic{font-size:30px;line-height:1;width:52px;height:52px;border-radius:14px;background:var(--mint);display:grid;place-items:center;flex:none}
 .card h3{margin:0 0 4px;font-size:17px;line-height:1.25}.card p{margin:0 0 8px;font-size:13px;color:var(--muted)}
 .meta{font-size:12px;font-weight:700;color:var(--teal)}.card:disabled .meta{color:var(--muted)}
@@ -66,6 +66,9 @@ table.rep th{background:#f0f5f3;font-size:12px;text-transform:uppercase;letter-s
 table.rep td.n{text-align:center;white-space:nowrap}table.rep .st-ok{color:var(--green);font-weight:800}table.rep .st-no{color:var(--red);font-weight:800}
 .print-only{display:none}
 .savestate{margin:10px auto 0;max-width:460px;font-size:14px;border-radius:10px;padding:10px 12px}.savestate:empty{display:none}.savestate.saving{background:#f0f5f3;color:var(--muted)}.savestate.saved{background:#eaf6ef;color:var(--green);font-weight:700}.savestate.failed{background:#fff1ed;color:#87332e}.savestate .btn{margin-left:6px;padding:6px 10px;font-size:13px}
+.seltopic{display:flex;gap:14px;align-items:center;background:var(--mint);border-radius:14px;padding:14px 16px}.seltopic .ic{font-size:28px;width:50px;height:50px;border-radius:12px;background:#fff;display:grid;place-items:center;flex:none}.seltopic h3{margin:0;font-size:18px;line-height:1.25}.seltopic span.m{font-size:13px;color:var(--teal);font-weight:700}
+.linkrow{display:flex;gap:10px;align-items:center;border-top:1px solid var(--line);padding:10px 0;flex-wrap:wrap}.linkrow b{min-width:160px}.linkrow code{flex:1;min-width:200px;font-size:13px;background:var(--paper);padding:6px 8px;border-radius:8px;word-break:break-all}
+.remember{display:flex;gap:10px;align-items:flex-start;margin-top:14px;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;cursor:pointer;font-size:15px;font-weight:600}.remember input{accent-color:var(--teal);width:20px;height:20px;margin:1px 0 0;flex:none}.remember small{display:block;font-weight:400;font-size:12.5px;color:var(--muted);margin-top:2px}
 .idsum{display:flex;align-items:center;gap:12px;background:var(--mint);border-radius:12px;padding:12px 14px}.idsum .who{flex:1;min-width:0}.idsum .who b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.idsum .who span{font-size:13px;color:var(--muted)}
 .topbar{display:none}#feedback,#qErr{scroll-margin-bottom:110px}
 @media(max-width:640px){
@@ -117,21 +120,29 @@ table.rep td.n{text-align:center;white-space:nowrap}table.rep .st-ok{color:var(-
 <!-- ============ MENU UTAMA ============ -->
 <div id="home">
  <section class="panel">
-  <h2 class="sec">1. Maklumat peserta</h2>
-  <div class="idsum hidden" id="idSum"><div class="who"><b id="idSumNama"></b><span id="idSumJab"></span></div><button class="btn secondary sm" id="idChange" type="button">Tukar</button></div>
-  <div class="row" id="idFields">
-   <div class="field"><label for="nama">Nama penuh <span class="req">*</span></label><input id="nama" autocomplete="name" autocapitalize="words" enterkeyhint="next" placeholder="Masukkan nama penuh"></div>
-   <div class="field"><label for="noPekerja">No. pekerja <span class="opt">(pilihan)</span></label><input id="noPekerja" autocapitalize="characters" enterkeyhint="next" placeholder="cth. SCI0123"></div>
-   <div class="field"><label for="jabatan">Jabatan / unit <span class="req">*</span></label><input id="jabatan" list="jabList" autocapitalize="words" enterkeyhint="done" placeholder="Masukkan jabatan"></div>
-  </div>
-  <datalist id="jabList"><option>Glue Plant</option><option>Formalin</option><option>Q.C</option><option>R&amp;D</option><option>Maintenance</option><option>Store</option><option>HSE</option><option>Pentadbiran</option></datalist>
-  <div class="err hidden" id="idErr">Sila isi nama dan jabatan sebelum memilih topik.</div>
- </section>
- <section class="panel">
-  <h2 class="sec">2. Pilih topik penilaian</h2>
+  <h2 class="sec">Pilih topik penilaian</h2>
+  <div class="msg err hidden" id="linkErr"></div>
   <div id="topicsBox"><p><span class="spin"></span>Memuatkan topik…</p></div>
  </section>
 </div>
+
+<!-- ============ MAKLUMAT PESERTA ============ -->
+<section class="panel hidden" id="ident">
+ <div class="seltopic" id="selTopic"></div>
+ <h2 class="sec" style="margin-top:18px">Maklumat peserta</h2>
+ <div class="idsum hidden" id="idSum"><div class="who"><span style="font-size:12px;font-weight:700;color:var(--teal)">Menjawab sebagai</span><b id="idSumNama"></b><span id="idSumJab"></span></div><button class="btn secondary sm" id="idChange" type="button">Tukar</button></div>
+ <div id="idFields">
+  <div class="row">
+   <div class="field"><label for="nama">Nama penuh <span class="req">*</span></label><input id="nama" autocomplete="name" autocapitalize="words" enterkeyhint="next" placeholder="Masukkan nama penuh"></div>
+   <div class="field"><label for="noPekerja">No. pekerja <span class="opt">(pilihan)</span></label><input id="noPekerja" autocapitalize="characters" enterkeyhint="next" placeholder="cth. SCI0123"></div>
+   <div class="field"><label for="jabatan">Jabatan / seksyen <span class="req">*</span></label><input id="jabatan" list="jabList" autocapitalize="words" enterkeyhint="go" placeholder="Masukkan jabatan / seksyen"></div>
+  </div>
+ </div>
+ <datalist id="jabList"><option>Glue Plant</option><option>Formalin</option><option>Q.C</option><option>R&amp;D</option><option>Maintenance</option><option>Store</option><option>HSE</option><option>Pentadbiran</option></datalist>
+ <label class="remember" id="rememberWrap"><input type="checkbox" id="remember"><span>Ingat maklumat saya pada telefon ini<small>Tandakan hanya jika ini telefon anda sendiri. Jangan tanda pada telefon atau tablet yang dikongsi.</small></span></label>
+ <div class="err hidden" id="idErr">Sila isi nama dan jabatan / seksyen.</div>
+ <div class="buttons"><button class="btn secondary" id="identBack" type="button">← Topik lain</button><button class="btn primary" id="startBtn" type="button">Mula penilaian →</button></div>
+</section>
 
 <!-- ============ KUIZ ============ -->
 <section class="panel hidden" id="quiz">
@@ -158,8 +169,9 @@ table.rep td.n{text-align:center;white-space:nowrap}table.rep .st-ok{color:var(-
 <!-- ============ LAPORAN ADMIN ============ -->
 <section class="panel hidden" id="report">
  <div class="rep-head no-print"><h2>Laporan keputusan</h2>
-  <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary sm" id="repPrint">🖨 Cetak</button><button class="btn secondary sm" id="repReload">↻ Muat semula</button><button class="btn secondary sm" id="repPwBtn">Tukar kata laluan</button><button class="btn secondary sm" id="repExit">Keluar</button></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary sm" id="repPrint">🖨 Cetak</button><button class="btn secondary sm" id="repReload">↻ Muat semula</button><button class="btn secondary sm" id="repLinksBtn">🔗 Pautan topik</button><button class="btn secondary sm" id="repPwBtn">Tukar kata laluan</button><button class="btn secondary sm" id="repExit">Keluar</button></div>
  </div>
+ <div class="hidden no-print" id="linksBox" style="margin-top:16px;padding:16px;border:1.5px solid var(--teal);border-radius:14px"><b>Pautan terus setiap topik</b><p style="margin:4px 0 6px;font-size:13px;color:var(--muted)">Letak pautan ini (atau kod QR daripadanya) di slaid terakhir taklimat — peserta terus masuk ke topik itu.</p><div id="linksList"></div></div>
  <form class="hidden no-print" id="pwForm" style="margin-top:16px;padding:16px;border:1.5px solid var(--teal);border-radius:14px">
   <div class="row"><div class="field"><label for="pw1">Kata laluan baharu</label><input type="password" id="pw1" autocomplete="new-password"></div><div class="field"><label for="pw2">Ulang kata laluan baharu</label><input type="password" id="pw2" autocomplete="new-password"></div></div>
   <div class="err hidden" id="pwErr"></div>
@@ -190,8 +202,8 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbwy8L9QGQTkLmBjKAZSBdGL
 /* ============================================================ */
 
 const $=id=>document.getElementById(id);
-const VIEWS=['home','quiz','submitting','result','login','report'];
-function show(v){VIEWS.forEach(x=>$(x).classList.toggle('hidden',x!==v));document.body.classList.toggle('focus',['quiz','submitting','result'].includes(v));$('topbarTxt').textContent=cur&&v!=='submitting'?cur.name:'SCI · Penilaian HSE';window.scrollTo(0,0)}
+const VIEWS=['home','ident','quiz','submitting','result','login','report'];
+function show(v){VIEWS.forEach(x=>$(x).classList.toggle('hidden',x!==v));document.body.classList.toggle('focus',['ident','quiz','submitting','result'].includes(v));$('topbarTxt').textContent=cur&&v!=='submitting'?cur.name:'SCI · Penilaian HSE';window.scrollTo(0,0)}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 const L='ABCDE';
@@ -219,44 +231,69 @@ return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('')}
 
 /* ====== DATA: dimuat sekali, disimpan dalam telefon untuk bukaan seterusnya ====== */
 const BUNDLE_KEY='hseQuizBundle',OUTBOX_KEY='hseQuizOutbox';
-let bundle=null,topics=[];
+let bundle=null,topics=[],fresh=false;
 function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 
+const isOpen=t=>t.active!==false&&t.count>0;
 function renderTopics(){
  const box=$('topicsBox');
- if(!topics.length){box.innerHTML='<div class="msg">Belum ada topik aktif.</div>';return}
- box.innerHTML='<div class="cards">'+topics.map((t,i)=>`<button class="card" data-i="${i}" ${t.count?'':'disabled'}><span class="ic">${esc(t.icon||'📋')}</span><span><h3>${esc(t.name)}</h3>${t.desc?`<p>${esc(t.desc)}</p>`:''}<span class="meta">${t.count?`${t.count} soalan · Lulus ${t.pass}%`:'Soalan belum tersedia'}</span></span></button>`).join('')+'</div>';
+ if(!topics.length){box.innerHTML='<div class="msg">Belum ada topik.</div>';return}
+ // topik yang dibuka dipaparkan dahulu, diikuti topik yang ditutup (pudar)
+ const order=topics.map((t,i)=>i).sort((a,b)=>(isOpen(topics[b])-isOpen(topics[a]))||a-b);
+ box.innerHTML='<div class="cards">'+order.map(i=>{const t=topics[i],closed=t.active===false;return `<button class="card${closed?' closed':''}" data-i="${i}" ${isOpen(t)?'':'disabled'}><span class="ic">${esc(t.icon||'📋')}</span><span><h3>${esc(t.name)}</h3>${t.desc?`<p>${esc(t.desc)}</p>`:''}<span class="meta">${closed?'🔒 Penilaian ditutup':t.count?`${t.count} soalan · Lulus ${t.pass}%`:'Soalan belum tersedia'}</span></span></button>`}).join('')+'</div>';
  box.querySelectorAll('.card').forEach(c=>c.onclick=()=>pickTopic(topics[c.dataset.i]));
 }
-function applyBundle(b){bundle=b;topics=b.topics||[];if(!$('home').classList.contains('hidden')||!$('topicsBox').querySelector('.card'))renderTopics()}
+function applyBundle(b){bundle=b;topics=b.topics||[];if(!$('home').classList.contains('hidden')||!$('topicsBox').querySelector('.card'))renderTopics();openLink()}
+/* Pautan terus: ...?topik=KOD membuka borang topik itu tanpa melalui menu */
+let linkDone=false;
+function openLink(){
+ if(linkDone)return;const code=(new URLSearchParams(location.search).get('topik')||'').trim().toUpperCase();if(!code){linkDone=true;return}
+ const t=topics.find(x=>x.code===code);
+ if(t&&isOpen(t)){linkDone=true;if(!$('home').classList.contains('hidden'))pickTopic(t)}
+ else if(bundle&&bundle.nonce&&!fresh){/* tunggu data terkini */}
+ else{linkDone=true;$('linkErr').textContent=t?(t.active===false?`Penilaian "${t.name}" ditutup buat masa ini.`:`Soalan untuk topik "${t.name}" belum tersedia.`):`Topik "${code}" tidak dijumpai. Sila pilih topik di bawah.`;$('linkErr').classList.remove('hidden')}
+}
+function clearLink(){$('linkErr').classList.add('hidden');if(location.search){try{history.replaceState(null,'',location.pathname)}catch(e){}}}
 async function loadTopics(){
  const cached=lsGet(BUNDLE_KEY);
  if(cached&&cached.topics){applyBundle(cached)}else{$('topicsBox').innerHTML='<p><span class="spin"></span>Memuatkan topik…</p>'}
- try{const d=await api('bundle');lsSet(BUNDLE_KEY,d);applyBundle(d)}
- catch(e){if(!cached){$('topicsBox').innerHTML=`<div class="msg err">${esc(e.message)}</div><div class="buttons" style="justify-content:flex-start"><button class="btn secondary sm" onclick="loadTopics()">Cuba lagi</button></div>`}}
+ try{const d=await api('bundle');lsSet(BUNDLE_KEY,d);fresh=true;applyBundle(d)}
+ catch(e){fresh=true;openLink();if(!cached){$('topicsBox').innerHTML=`<div class="msg err">${esc(e.message)}</div><div class="buttons" style="justify-content:flex-start"><button class="btn secondary sm" onclick="loadTopics()">Cuba lagi</button></div>`}}
 }
 
 const ID_KEY='hseQuizPeserta';
-function loadId(){const s=lsGet(ID_KEY);if(s&&s.nama&&s.jabatan){$('nama').value=s.nama;$('noPekerja').value=s.noPekerja||'';$('jabatan').value=s.jabatan;showIdSum(true)}}
+function loadId(){const s=lsGet(ID_KEY);if(s&&s.nama&&s.jabatan){$('nama').value=s.nama;$('noPekerja').value=s.noPekerja||'';$('jabatan').value=s.jabatan;$('remember').checked=true;return true}return false}
+function clearId(){['nama','noPekerja','jabatan'].forEach(x=>$(x).value='');$('remember').checked=false}
+function forgetId(){try{localStorage.removeItem(ID_KEY)}catch(e){}}
 function saveId(id){lsSet(ID_KEY,id)}
 function showIdSum(on){const id=ident();$('idSum').classList.toggle('hidden',!on);$('idFields').classList.toggle('hidden',on);if(on){$('idSumNama').textContent=id.nama;$('idSumJab').textContent=[id.noPekerja,id.jabatan].filter(Boolean).join(' · ')}}
 $('idChange').onclick=()=>{showIdSum(false);$('nama').focus()};
+$('identBack').onclick=()=>{clearLink();show('home');renderTopics()};
+$('startBtn').onclick=()=>startQuiz();
 function ident(){return{nama:$('nama').value.trim().replace(/\s+/g,' '),noPekerja:$('noPekerja').value.trim(),jabatan:$('jabatan').value.trim().replace(/\s+/g,' ')}}
 ['nama','jabatan'].forEach(id=>$(id).addEventListener('input',()=>$('idErr').classList.add('hidden')));
 ['nama','noPekerja'].forEach((id,i)=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$(['noPekerja','jabatan'][i]).focus()}}));
-$('jabatan').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('jabatan').blur();$('topicsBox').scrollIntoView({behavior:'smooth',block:'start'})}});
+$('jabatan').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('jabatan').blur();startQuiz()}});
 
 /* ====== KUIZ ====== */
 let cur=null,qs=[],idx=0,answers=[],checks=[],nonce='';
 function correctIndex(q){for(let k=0;k<q.o.length;k++)if(sha256(nonce+'|'+cur.code+'|'+q.id+'|'+k)===q.h)return k;return -1}
 function pickTopic(t){
+ cur=t;$('idErr').classList.add('hidden');
+ $('selTopic').innerHTML=`<span class="ic">${esc(t.icon||'📋')}</span><div><span class="m">Penilaian</span><h3>${esc(t.name)}</h3><span class="m" style="color:var(--muted);font-weight:600">${t.count} soalan · Markah lulus ${t.pass}%</span></div>`;
+ if(!loadId())clearId();
+ showIdSum(!!lsGet(ID_KEY)&&!!ident().nama);
+ show('ident');
+ if($('idFields').offsetParent&&!ident().nama)setTimeout(()=>$('nama').focus(),250);
+}
+function startQuiz(){
  const id=ident();
- if(!id.nama||!id.jabatan){showIdSum(false);$('idErr').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});setTimeout(()=>$(id.nama?'jabatan':'nama').focus(),300);return}
- saveId(id);showIdSum(true);
- const list=bundle&&bundle.questions&&bundle.questions[t.code];
+ if(!id.nama||!id.jabatan){showIdSum(false);$('idErr').classList.remove('hidden');$(id.nama?'jabatan':'nama').focus();return}
+ if($('remember').checked)saveId(id);else forgetId();
+ const list=bundle&&bundle.questions&&bundle.questions[cur.code];
  if(!list||!list.length){alert('Soalan untuk topik ini belum tersedia. Sila muat semula halaman.');return}
- cur=t;nonce=bundle.nonce;qs=shuffle(list.map(q=>Object.assign({},q)));idx=0;answers=Array(qs.length).fill(null);checks=Array(qs.length).fill(null);
+ nonce=bundle.nonce;qs=shuffle(list.map(q=>Object.assign({},q)));idx=0;answers=Array(qs.length).fill(null);checks=Array(qs.length).fill(null);
  show('quiz');render();
 }
 function render(){
@@ -318,8 +355,8 @@ function showResult(d,id){
  <div class="buttons" style="justify-content:center"><button class="btn primary" id="done">Kembali ke menu</button><button class="btn secondary" id="retry">Cuba lagi</button><button class="btn secondary" onclick="window.print()">Cetak / simpan PDF</button></div>
  <h3 style="margin:26px auto 0;font-size:16px;text-align:left;max-width:700px">Semakan jawapan</h3>
  <div class="review">${d.review.map((r,k)=>{const q=qs[k];return `<details><summary>${r.isCorrect?'✓':'↻'} Soalan ${k+1}${q.t?': '+esc(q.t):''} — ${r.isCorrect?'Betul':'Semak semula'}</summary><div class="ans">${esc(q.q)}<br><strong>Jawapan anda:</strong> ${r.chosen===null?'—':esc(L[r.chosen]+'. '+q.o[r.chosen])}<br><strong>Jawapan betul:</strong> ${r.correct<0?'—':esc(L[r.correct]+'. '+q.o[r.correct])}<br>${esc(r.e)}</div></details>`}).join('')}</div>`;
- $('retry').onclick=()=>pickTopic(cur);
- $('done').onclick=()=>{show('home');renderTopics()};
+ $('retry').onclick=()=>startQuiz();
+ $('done').onclick=()=>{clearLink();show('home');renderTopics()};
 }
 window.addEventListener('beforeunload',ev=>{if(flushing){ev.preventDefault();ev.returnValue=''}});
 
@@ -367,6 +404,10 @@ function renderReport(){
 $('repPrint').onclick=()=>{renderReport();window.print()};
 $('repReload').onclick=async()=>{const b=$('repReload');b.disabled=true;try{await loadReport(adminPw)}catch(e){alert(e.message)}b.disabled=false};
 $('repExit').onclick=()=>{adminPw='';allRows=[];$('repBody').innerHTML='';document.body.classList.remove('printing-report');$('pwForm').classList.add('hidden');show('home')};
+$('repLinksBtn').onclick=()=>{const box=$('linksBox');box.classList.toggle('hidden');if(box.classList.contains('hidden'))return;
+ const base=location.origin+location.pathname;
+ $('linksList').innerHTML=repTopics.map(t=>{const u=base+'?topik='+encodeURIComponent(t.code);return `<div class="linkrow"><b>${esc(t.name)}</b><code>${esc(u)}</code><button class="btn secondary sm" data-u="${esc(u)}">Salin</button></div>`}).join('');
+ $('linksList').querySelectorAll('button').forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(b.dataset.u);b.textContent='✓ Disalin'}catch(e){prompt('Salin pautan ini:',b.dataset.u)}setTimeout(()=>b.textContent='Salin',1500)})};
 $('repPwBtn').onclick=()=>{$('pwForm').classList.toggle('hidden');$('pw1').value=$('pw2').value='';$('pwErr').classList.add('hidden')};
 $('pwCancel').onclick=()=>$('pwForm').classList.add('hidden');
 $('pwForm').onsubmit=async ev=>{ev.preventDefault();const p1=$('pw1').value,p2=$('pw2').value,err=m=>{$('pwErr').textContent=m;$('pwErr').classList.remove('hidden')};
@@ -374,7 +415,7 @@ $('pwForm').onsubmit=async ev=>{ev.preventDefault();const p1=$('pw1').value,p2=$
  $('pwSave').disabled=true;try{await api('setpass',{password:adminPw,newPassword:p1},true);adminPw=p1;$('pwForm').classList.add('hidden');alert('Kata laluan admin telah ditukar.')}catch(e){err(e.message)}$('pwSave').disabled=false};
 window.addEventListener('beforeprint',()=>{if(!$('report').classList.contains('hidden'))renderReport()});
 
-loadId();loadTopics();if((lsGet(OUTBOX_KEY)||[]).length)flushOutbox();
+loadTopics();if((lsGet(OUTBOX_KEY)||[]).length)flushOutbox();
 </script>
 </body>
 </html>
