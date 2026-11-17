@@ -21,7 +21,7 @@
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
 .card{display:flex;gap:14px;align-items:flex-start;text-align:left;border:1.5px solid var(--line);border-radius:16px;padding:18px;background:#fff;cursor:pointer;font:inherit;color:inherit;transition:.15s}
 .card:hover:not(:disabled){border-color:var(--teal);background:#f8fcfa;transform:translateY(-1px)}
-.card:disabled{cursor:not-allowed;opacity:.55}
+.card:disabled{cursor:not-allowed;opacity:.55}.card.closed{background:#f3f5f4;opacity:.6}.card.closed .ic{filter:grayscale(1);background:#e6eaea}.card.closed .meta{color:#7a6a3a}
 .card .ic{font-size:30px;line-height:1;width:52px;height:52px;border-radius:14px;background:var(--mint);display:grid;place-items:center;flex:none}
 .card h3{margin:0 0 4px;font-size:17px;line-height:1.25}.card p{margin:0 0 8px;font-size:13px;color:var(--muted)}
 .meta{font-size:12px;font-weight:700;color:var(--teal)}.card:disabled .meta{color:var(--muted)}
@@ -235,10 +235,13 @@ let bundle=null,topics=[],fresh=false;
 function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 
+const isOpen=t=>t.active!==false&&t.count>0;
 function renderTopics(){
  const box=$('topicsBox');
- if(!topics.length){box.innerHTML='<div class="msg">Belum ada topik aktif.</div>';return}
- box.innerHTML='<div class="cards">'+topics.map((t,i)=>`<button class="card" data-i="${i}" ${t.count?'':'disabled'}><span class="ic">${esc(t.icon||'📋')}</span><span><h3>${esc(t.name)}</h3>${t.desc?`<p>${esc(t.desc)}</p>`:''}<span class="meta">${t.count?`${t.count} soalan · Lulus ${t.pass}%`:'Soalan belum tersedia'}</span></span></button>`).join('')+'</div>';
+ if(!topics.length){box.innerHTML='<div class="msg">Belum ada topik.</div>';return}
+ // topik yang dibuka dipaparkan dahulu, diikuti topik yang ditutup (pudar)
+ const order=topics.map((t,i)=>i).sort((a,b)=>(isOpen(topics[b])-isOpen(topics[a]))||a-b);
+ box.innerHTML='<div class="cards">'+order.map(i=>{const t=topics[i],closed=t.active===false;return `<button class="card${closed?' closed':''}" data-i="${i}" ${isOpen(t)?'':'disabled'}><span class="ic">${esc(t.icon||'📋')}</span><span><h3>${esc(t.name)}</h3>${t.desc?`<p>${esc(t.desc)}</p>`:''}<span class="meta">${closed?'🔒 Penilaian ditutup':t.count?`${t.count} soalan · Lulus ${t.pass}%`:'Soalan belum tersedia'}</span></span></button>`}).join('')+'</div>';
  box.querySelectorAll('.card').forEach(c=>c.onclick=()=>pickTopic(topics[c.dataset.i]));
 }
 function applyBundle(b){bundle=b;topics=b.topics||[];if(!$('home').classList.contains('hidden')||!$('topicsBox').querySelector('.card'))renderTopics();openLink()}
@@ -247,9 +250,9 @@ let linkDone=false;
 function openLink(){
  if(linkDone)return;const code=(new URLSearchParams(location.search).get('topik')||'').trim().toUpperCase();if(!code){linkDone=true;return}
  const t=topics.find(x=>x.code===code);
- if(t&&t.count){linkDone=true;if(!$('home').classList.contains('hidden'))pickTopic(t)}
+ if(t&&isOpen(t)){linkDone=true;if(!$('home').classList.contains('hidden'))pickTopic(t)}
  else if(bundle&&bundle.nonce&&!fresh){/* tunggu data terkini */}
- else{linkDone=true;$('linkErr').textContent=t?`Soalan untuk topik "${t.name}" belum tersedia.`:`Topik "${code}" tidak dijumpai. Sila pilih topik di bawah.`;$('linkErr').classList.remove('hidden')}
+ else{linkDone=true;$('linkErr').textContent=t?(t.active===false?`Penilaian "${t.name}" ditutup buat masa ini.`:`Soalan untuk topik "${t.name}" belum tersedia.`):`Topik "${code}" tidak dijumpai. Sila pilih topik di bawah.`;$('linkErr').classList.remove('hidden')}
 }
 function clearLink(){$('linkErr').classList.add('hidden');if(location.search){try{history.replaceState(null,'',location.pathname)}catch(e){}}}
 async function loadTopics(){
