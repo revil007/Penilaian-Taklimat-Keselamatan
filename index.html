@@ -253,6 +253,9 @@ function openLink(){
  if(t&&isOpen(t)){linkDone=true;if(!$('home').classList.contains('hidden'))pickTopic(t)}
  else if(bundle&&bundle.nonce&&!fresh){/* tunggu data terkini */}
  else{linkDone=true;$('linkErr').textContent=t?(t.active===false?`Penilaian "${t.name}" ditutup buat masa ini.`:`Soalan untuk topik "${t.name}" belum tersedia.`):`Topik "${code}" tidak dijumpai. Sila pilih topik di bawah.`;$('linkErr').classList.remove('hidden')}
+ if(t&&t.count){linkDone=true;if(!$('home').classList.contains('hidden'))pickTopic(t)}
+ else if(bundle&&bundle.nonce&&!fresh){/* tunggu data terkini */}
+ else{linkDone=true;$('linkErr').textContent=t?`Soalan untuk topik "${t.name}" belum tersedia.`:`Topik "${code}" tidak dijumpai. Sila pilih topik di bawah.`;$('linkErr').classList.remove('hidden')}
 }
 function clearLink(){$('linkErr').classList.add('hidden');if(location.search){try{history.replaceState(null,'',location.pathname)}catch(e){}}}
 async function loadTopics(){
